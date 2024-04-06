@@ -38,5 +38,5 @@
   (->> filename
        read-json
        to-triples
-       (write-triples (str/replace filename #"\.json$" ".ttl"))))
+       (write-triples (str/replace filename #"\.json$" ".edn"))))
 
