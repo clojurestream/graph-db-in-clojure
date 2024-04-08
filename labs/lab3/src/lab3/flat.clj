@@ -7,5 +7,5 @@
 
 
 (comment
-  (def data (load-data "../../graphs/starwars.edn"))
+  (def data (load-data "../../graphs/starwars.edn")) 
 )

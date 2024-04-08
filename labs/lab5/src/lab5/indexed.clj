@@ -1,4 +1,4 @@
-(ns lab4.indexed
+(ns lab5.indexed
   (:require [clojure.edn :as edn]
             [clojure.string :as str]))
 
@@ -56,41 +56,47 @@
     {:vars vars
      :bindings (filter filter-fn data)}))
 
+(defn rewrite-pattern
+  [vars binding-data pattern]
+  (let [binding-map (zipmap vars binding-data)]
+    (mapv #(if (variable? %) (get binding-map % %) %) pattern)))
+
+(defn join
+  [graph part-result pattern]
+  (let [vars (:vars part-result)
+        new-vars (->> pattern
+                      (filter variable?)
+                      (remove (set vars)))
+        result (for [binding (:bindings part-result)
+                     new-values (:bindings (match graph (rewrite-pattern vars binding pattern)))]
+                 (vec (concat binding new-values)))]
+    {:vars (vec (concat vars new-vars))
+     :bindings result}))
 
 (comment
   ;; Load the starwars graph
   (def data (load-data "../../graphs/starwars.edn")) 
 
-  ;; raw access to the indexes
-  (get-in (:spo data) [:yoda :name]) 
-  (get (:osp data) "#191970") 
-  (let [idx (get (:osp data) "#191970")]
-    (for [[s pm] idx p (keys pm)] [s p])) 
-
-  ;; set up variables and patterns
+  ;; join [?character :color "#000000"] [?character :name ?name]
+  (def color-pattern '[?character :color "#000000"]) 
   (def name-pattern '[?character :name ?name]) 
-  (vec (filter variable? name-pattern)) 
-  (normalize nil name-pattern) 
 
-  ;; select statements from the graph
-  (match data '[?yoda :name "Yoda"]) 
-  (match data '[?character :color "#000000"]) 
-  ;; demonstrate that we can still create the bindings maps
-  (def rabe (match data '[:rabe ?attribute ?value])) 
-  (map #(zipmap (:vars rabe) %) (:bindings rabe)) 
+  (def color-result (match data color-pattern)) 
+  (def vars (:vars color-result)) 
 
-  ;; demonstrate filtering results
-  (def names (match data '[?character :name ?name])) 
-  (filter (fn [[?character ?name]] (str/starts-with? ?name "Darth")) (:bindings names)) 
+  (for [binding (:bindings color-result)]
+    binding) 
 
-  ;; manually build a filter function
-  (def fltr '(str/starts-with? ?name "Darth")) 
-  (def vars (:vars names)) 
-  (def filter-fn (eval `(fn [~vars] ~fltr))) 
-  (filter filter-fn (:bindings names)) 
+  (for [binding (:bindings color-result)]
+    (rewrite-pattern vars binding '[?character :name ?name])) 
 
-  ;; Execute a match and filter in one go
-  (-> data
-      (match '[?character :name ?name])
-      (do-filter '[(str/starts-with? ?name "Darth")])) 
+  (for [binding (:bindings color-result)]
+    (match data (rewrite-pattern vars binding '[?character :name ?name]))) 
+
+  (for [binding (:bindings color-result)
+        new-values (:bindings (match data (rewrite-pattern vars binding '[?character :name ?name])))]
+    (vec (concat binding new-values))) 
+
+  (join data color-result '[?character :name ?name]) 
+  
 )

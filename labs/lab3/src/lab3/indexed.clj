@@ -25,14 +25,14 @@
 
 (comment
   ;; Add statements to an SPO index
-  (def i (assoc-in {} [:yoda :interacts-with :luke] :luke))
-  (assoc-in i [:yoda :interacts-with :obi-wan] :obi-wan)
+  (def i (assoc-in {} [:yoda :interacts-with :luke] :luke)) 
+  (assoc-in i [:yoda :interacts-with :obi-wan] :obi-wan) 
 
   ;; Add statements to a full index
-  (def fi0 (IndexedGraph. {} {} {}))
-  (def fi1 (add fi0 [:yoda :interacts-with :luke]))
-  (def fi2 (add fi1 [:yoda :interacts-with :obi-wan]))
+  (def fi0 (IndexedGraph. {} {} {})) 
+  (def fi1 (add fi0 [:yoda :interacts-with :luke])) 
+  (def fi2 (add fi1 [:yoda :interacts-with :obi-wan])) 
 
   ;; Load the starwars graph
-  (def data (load-data "../../graphs/starwars.edn"))
+  (def data (load-data "../../graphs/starwars.edn")) 
 )
