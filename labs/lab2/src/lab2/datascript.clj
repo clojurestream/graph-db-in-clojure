@@ -27,10 +27,11 @@
 
 
 (comment
-  (def triples (read-triples "../../graphs/starwars.edn"))
-  (def conn (insert-triples (create-db) triples))
-  (d/q '[:find ?name :where [:yoda :name ?name]] @conn)
-  (d/q '[:find ?character ?name :where [?character :name ?name]] @conn)
-  (d/q '[:find ?character ?name :where [?character :color "#000000"][?character :name ?name]] @conn)
+  (def triples (read-triples "../../graphs/starwars.edn")) 
+  (def conn (create-db)) 
+  (insert-triples conn triples) 
+  (d/q '[:find ?name :where [:yoda :name ?name]] @conn) 
+  (d/q '[:find ?character ?name :where [?character :name ?name]] @conn) 
+  (d/q '[:find ?ident ?name :where [?character :color "#000000"][?character :name ?name][?character :db/ident ?ident]] @conn) 
 )
 

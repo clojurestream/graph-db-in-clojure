@@ -18,8 +18,9 @@
   ([object] (obj->triples object :app-id))
   ([object key-field]
    (let [id (keyword (str "g" (get object key-field)))]
-     ;; TODO
-     )))
+     (keep (fn [[k v]]
+             (when (seq v) [id k v]))
+           object))))
 
 (defn write-triples
  [filename triples]
@@ -33,5 +34,5 @@
        csv->objects
        (mapcat obj->triples)
        (into [])
-       (write-triples (str/replace filename #"\.csv$" ".ttl"))))
+       (write-triples (str/replace filename #"\.csv$" ".edn"))))
 

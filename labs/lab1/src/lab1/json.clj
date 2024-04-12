@@ -6,23 +6,25 @@
 
 (defn read-json
   [filename]
-  ;; TODO read a JSON file, with keyword keys
-  )
+  (json/read-str (slurp filename) :key-fn keyword))
 
 (defn link->triples
   [nodes link-index {:keys [source target value] :as link}]
-  ;; TODO convert a link to a seq of triples
-  ;; the nodes are provided since links connect nodes
-  )
+  (let [source-id (node-id (get nodes source))
+        target-id (node-id (get nodes target))]
+    [[source-id :interacts-with target-id] 
+     [target-id :interacts-with source-id]]))
 
 (defn node->triples
   [node-index {:keys [name value colour] :as node}]
-  ;; TODO convert a node to a seq of triples
-  )
+  (let [id (node-id node)]
+    [[id :name (capitalize-name name)]
+     [id :value value]
+     [id :color colour]]))
 
 (defn to-triples
   [{:keys [nodes links]}]
-  (let [link-function #(link->triples nodes %)]
+  (let [link-function #(link->triples nodes %1 %2)]
     (-> []
         (into (apply concat (map-indexed link-function links)))
         (into (apply concat (map-indexed node->triples nodes))))))
@@ -40,3 +42,6 @@
        to-triples
        (write-triples (str/replace filename #"\.json$" ".edn"))))
 
+(comment
+  (convert-json "../../data/starwars-social/starwars-full-interactions-allCharacters-merged.json")
+)

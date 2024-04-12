@@ -87,6 +87,8 @@
     (do-filter part-result pattern)
     (join graph part-result pattern)))
 
+;; [?person :first-name ?fname] [?person :last-name ?lname] [(str ?fname " " ?lname) ?name]
+
 (def identity-binding {:vars [] :bindings [[]]})
 
 (defn query->map
@@ -118,14 +120,14 @@
   (def color-pattern '[?character :color ?color]) 
   (def filter-pattern '[(str/starts-with? ?name "Darth")]) 
   (def first-step (join data identity-binding name-pattern)) 
-  (def second-step (join data first-step color-pattern))
-  (def last-step (do-filter second-step filter-pattern))
-  (project '[?name ?color] last-step)
+  (def second-step (join data first-step color-pattern)) 
+  (def last-step (do-filter second-step filter-pattern)) 
+  (project '[?name ?color] last-step) 
   
   (def name-color-query '[:find ?name ?color
                           :where [?character :name ?name]
                                  [?character :color ?color]
-                                 [(str/starts-with? ?name "Darth")]])
+                                 [(str/starts-with? ?name "Darth")]]) 
 
-  (q name-color-query data)
+  (q name-color-query data) 
 )

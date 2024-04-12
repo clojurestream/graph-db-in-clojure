@@ -18,31 +18,31 @@
   (filter (fn [triple] (every? #(element-match (nth pattern %) (nth triple %)) (range 3))) data))
 
 (defn bind
+  "Bind the pattern resolution to maps"
   [data pattern]
-  (let [bindings (match data pattern)]
-    (keep (fn [triple] (reduce (fn [bndg n]
-                                 (let [p (nth pattern n)]
-                                   (if (variable? p)
-                                     ;; map the variable to the value
-                                     (assoc bndg p (nth triple n))
-                                     (if (= p (nth triple n))
-                                       ;; pattern element = triple element
-                                       bndg
-                                       ;; elements not equal: return nil
-                                       (reduced nil)))))
-                               {} (range 3)))
-          data)))
+  (keep (fn [triple] (reduce (fn [bndg n]
+                               (let [p (nth pattern n)]
+                                 (if (variable? p)
+                                   ;; map the variable to the value
+                                   (assoc bndg p (nth triple n))
+                                   (if (= p (nth triple n))
+                                     ;; pattern element = triple element
+                                     bndg
+                                     ;; elements not equal: return nil
+                                     (reduced nil)))))
+                             {} (range 3)))
+        data))
 
 (defn bind2
+  "Bind the pattern resolution to vectors of values"
   [data pattern]
-  (let [bindings (match data pattern)]
-    (keep (fn [triple] (reduce (fn [bndg n]
-                                 (let [p (nth pattern n)]
-                                  (if (variable? p)
-                                    (conj bndg (nth triple n))
-                                    (if (= p (nth triple n)) bndg (reduced nil)))))
-                               [] (range 3)))
-          data)))
+  (keep (fn [triple] (reduce (fn [bndg n]
+                               (let [p (nth pattern n)]
+                                 (if (variable? p)
+                                   (conj bndg (nth triple n))
+                                   (if (= p (nth triple n)) bndg (reduced nil)))))
+                             [] (range 3)))
+        data))
 
 (comment
   (def data (load-data "../../graphs/starwars.edn")) 
@@ -52,6 +52,8 @@
   (bind data '[?yoda :name "Yoda"]) 
   (bind data '[?character :color "#000000"]) 
   (bind data '[:yoda :interacts-with ?character]) 
+
+  (bind2 data '[?yoda :interacts-with ?character]) 
 
   (def color-pattern '[?character :color "#000000"]) 
   (def vars (vec (filter variable? color-pattern))) 
